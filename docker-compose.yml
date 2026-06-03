@@ -1,0 +1,77 @@
+version: "3.9"
+
+services:
+  # ─── PostgreSQL Database ────────────────────────────────────
+  postgres:
+    image: postgres:15-alpine
+    container_name: oms_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-oms_db}
+      POSTGRES_USER: ${POSTGRES_USER:-oms_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-oms_pass}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-oms_user} -d ${POSTGRES_DB:-oms_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - oms_network
+
+  # ─── FastAPI Backend ────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: oms_backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-oms_user}:${POSTGRES_PASSWORD:-oms_pass}@postgres:5432/${POSTGRES_DB:-oms_db}
+      SECRET_KEY: ${SECRET_KEY:-changeme-secret-key-at-least-32-characters-long}
+      ALGORITHM: ${ALGORITHM:-HS256}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES:-1440}
+      APP_ENV: ${APP_ENV:-production}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost,http://frontend}
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - oms_network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # ─── React Frontend ─────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-}
+    container_name: oms_frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - oms_network
+
+volumes:
+  postgres_data:
+    name: oms_postgres_data
+
+networks:
+  oms_network:
+    name: oms_network
+    driver: bridge
