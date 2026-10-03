@@ -363,7 +363,7 @@ Tests cover:
 - **Live API:** https://oms-api.onrender.com
 - **API Docs (Swagger):** https://oms-api.onrender.com/docs
 - **Docker Hub:** https://hub.docker.com/r/Akhil6387/oms-backend
-- **GitHub:** https://github.com/Akhil6387/oms
+- **GitHub:** [https://github.com/Akhil6387/oms](https://github.com/Akhil6387/Order-Management-App)
 
 ---
 
