@@ -359,11 +359,11 @@ Tests cover:
 
 ## 🔗 Links
 
-- **Live Demo (Frontend):** https://oms.vercel.app *(replace with your URL)*
-- **Live API:** https://oms-api.onrender.com *(replace with your URL)*
+- **Live Demo (Frontend):** https://oms.vercel.app
+- **Live API:** https://oms-api.onrender.com
 - **API Docs (Swagger):** https://oms-api.onrender.com/docs
-- **Docker Hub:** https://hub.docker.com/r/YOUR_USERNAME/oms-backend
-- **GitHub:** https://github.com/YOUR_USERNAME/oms
+- **Docker Hub:** https://hub.docker.com/r/Akhil6387/oms-backend
+- **GitHub:** https://github.com/Akhil6387/oms
 
 ---
 
